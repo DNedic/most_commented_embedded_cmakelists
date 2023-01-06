@@ -192,13 +192,13 @@ PRIVATE
 # Resources: https://mcuoneclipse.com/2013/04/14/text-data-and-bss-code-and-data-size-explained/
 add_custom_command(TARGET ${EXECUTABLE}
     POST_BUILD
-    COMMAND arm-none-eabi-size ${EXECUTABLE}
+    COMMAND ${CMAKE_SIZE_UTIL} ${EXECUTABLE}
 )
 
 # Create a custom command to generate binary and hex files.
 # These can be used depending on which method of loading the firmware to the MCU is used.
 add_custom_command(TARGET ${EXECUTABLE}
     POST_BUILD
-    COMMAND arm-none-eabi-objcopy -O ihex ${EXECUTABLE} ${PROJECT_NAME}.hex
-    COMMAND arm-none-eabi-objcopy -O binary ${EXECUTABLE} ${PROJECT_NAME}.bin
+    COMMAND ${CMAKE_OBJCOPY} -O ihex ${EXECUTABLE} ${PROJECT_NAME}.hex
+    COMMAND ${CMAKE_OBJCOPY} -O binary ${EXECUTABLE} ${PROJECT_NAME}.bin
 )
