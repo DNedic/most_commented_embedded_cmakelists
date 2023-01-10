@@ -40,17 +40,6 @@ set(MCU_OPTIONS
     -mthumb
 )
 
-# This sets a custom variable containing additional warning compiler flags.
-# All of these provide much more safety if not ignored.
-# Resources: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-set(WARNING_OPTIONS
-    -Wall
-    -Wextra
-    -Wshadow
-    -Wconversion
-    -Wdouble-promotion
-)
-
 # This sets up a variable containing extra functionality compiler flags.
 # The flags added here ensure that all objects are placed in separate linker sections. The importance of
 # this will be clear further down.
@@ -106,7 +95,6 @@ add_compile_options(
     ${EXTRA_OPTIONS}
     ${DEBUG_INFO_OPTIONS}
     ${DEPENDENCY_INFO_OPTIONS}
-    ${WARNING_OPTIONS}
     ${OPTIMIZATION_OPTIONS}
 )
 
@@ -174,6 +162,19 @@ add_executable(${EXECUTABLE}
 target_include_directories(${EXECUTABLE}
 PRIVATE
     Core/Inc
+)
+
+# Add additional warning options for the executable target, enabling them for our sources, but not third
+# party libraries.
+# All of these provide much more safety if not ignored.
+# Resources: https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+target_compile_options(${EXECUTABLE}
+PRIVATE
+    -Wall
+    -Wextra
+    -Wshadow
+    -Wconversion
+    -Wdouble-promotion
 )
 
 # Here we link the libraries to the executable. Same principle applies to the reasoning behind PRIVATE.
