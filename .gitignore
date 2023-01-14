@@ -54,3 +54,6 @@ dkms.conf
 # Directories
 build/
 .vscode/
+
+# The STM32CubeMX generated makefile
+/Makefile
