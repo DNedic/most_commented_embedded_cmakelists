@@ -1,6 +1,5 @@
 # The most thoroughly commented embedded CMakeLists file project
-This repository contains an example embedded CMake project using an STM32F103 MCU. It contains [the most thoroughly commented embedded CMakeLists file](CMakeLists.txt) covered in the [The most thoroughly commented embedded CMakeLists file
-](https://dnedic.github.io/blog/the-most-thoroughly-commented-embedded-cmakelists/) blogpost and a [nix-shell reproducible development environment](shell.nix) covered in the [Using nix-shell to create and share reproducible embedded development environments](https://dnedic.github.io/blog/nix-shell-embedded-development-environment/) blogpost.
+This repository contains an example embedded CMake project using an STM32F103 MCU. It contains [the most thoroughly commented embedded CMakeLists file](CMakeLists.txt) and a [nix-shell reproducible development environment](shell.nix) covered on [my blog](https://dnedic.github.io/blog/).
 
 # Building
 To build the project in the default Debug mode use the following commands:
