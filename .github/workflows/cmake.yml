@@ -19,9 +19,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Install the toolchain
-      run: sudo apt update && sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+    - uses: cachix/install-nix-action@v22
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
+    - uses: rrbutani/use-nix-shell-action@v1
+      with:
+        file: shell.nix
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
