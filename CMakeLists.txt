@@ -109,8 +109,8 @@ add_compile_options(
 )
 
 # Linker script generation command and inputs
-set(DRAM_ORIGIN 0x20000000)
-set(DRAM_LENGTH 20480)
+set(RAM_ORIGIN 0x20000000)
+set(RAM_LENGTH 20480)
 set(FLASH_ORIGIN 0x08000000)
 set(FLASH_LENGTH 65536)
 
@@ -123,8 +123,8 @@ add_custom_command(
     OUTPUT ${CMAKE_BINARY_DIR}/linker.ld
     COMMAND ${CMAKE_C_COMPILER}
             -E -P -x c
-            -DRAM_ORIGIN=${DRAM_ORIGIN}
-            -DRAM_LENGTH=${DRAM_LENGTH}
+            -DRAM_ORIGIN=${RAM_ORIGIN}
+            -DRAM_LENGTH=${RAM_LENGTH}
             -DFLASH_ORIGIN=${FLASH_ORIGIN}
             -DFLASH_LENGTH=${FLASH_LENGTH}
             -DHEAP_SIZE=${HEAP_SIZE}
