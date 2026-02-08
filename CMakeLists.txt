@@ -8,6 +8,16 @@
 # in most used Linux distributions.
 cmake_minimum_required(VERSION 3.21)
 
+# Handle user options for the build
+option(RAM_ONLY_BUILD "If set, the entire firmware is placed in RAM")
+
+if (NOT DEFINED HEAP_SIZE)
+    set(HEAP_SIZE 0x200)
+endif()
+if (NOT DEFINED MINIMUM_STACK_SIZE)
+    set(MINIMUM_STACK_SIZE 0x400)
+endif()
+
 # This sets up the project name and optionally version, description, homepage and more and stores them in
 # variables that can be used later. For instance, the project name is stored in PROJECT_NAME,
 # description in PROJECT_DESCRIPTION and so on.
@@ -98,6 +108,34 @@ add_compile_options(
     ${OPTIMIZATION_OPTIONS}
 )
 
+# Linker script generation command and inputs
+set(DRAM_ORIGIN 0x20000000)
+set(DRAM_LENGTH 20480)
+set(FLASH_ORIGIN 0x08000000)
+set(FLASH_LENGTH 65536)
+
+if (DEFINED FIRMWARE_FLASH_OFFSET)
+    math(EXPR FLASH_ORIGIN "${FLASH_ORIGIN} + ${FIRMWARE_FLASH_OFFSET}")
+    math(EXPR FLASH_LENGTH "${FLASH_LENGTH} - ${FIRMWARE_FLASH_OFFSET}")
+endif()
+
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/linker.ld
+    COMMAND ${CMAKE_C_COMPILER}
+            -E -P -x c
+            -DRAM_ORIGIN=${DRAM_ORIGIN}
+            -DRAM_LENGTH=${DRAM_LENGTH}
+            -DFLASH_ORIGIN=${FLASH_ORIGIN}
+            -DFLASH_LENGTH=${FLASH_LENGTH}
+            -DHEAP_SIZE=${HEAP_SIZE}
+            -DMINIMUM_STACK_SIZE=${MINIMUM_STACK_SIZE}
+            $<$<BOOL:${RAM_ONLY_BUILD}>:-DRAM_ONLY_BUILD>
+            ${CMAKE_SOURCE_DIR}/linker.ld.in
+            > ${CMAKE_BINARY_DIR}/linker.ld
+    DEPENDS ${CMAKE_SOURCE_DIR}/linker.ld.in
+    COMMENT "Generating linker script"
+)
+
 # Global linker options
 add_link_options(
     # Pass the MCU options to the linker as well
@@ -111,7 +149,7 @@ add_link_options(
     # the objects in memory. Resources:
     # https://blog.thea.codes/the-most-thoroughly-commented-linker-script/
     # https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html
-    -T${CMAKE_SOURCE_DIR}/STM32F103C8Tx_FLASH.ld
+    -T${CMAKE_BINARY_DIR}/linker.ld
 
     # This directive instructs the linker to generate a mapfile. Mapfiles contain information about the final
     # layout of the firmware binary and are an invaluable resource for development.
@@ -154,7 +192,8 @@ add_executable(${EXECUTABLE}
     Core/Src/stm32f1xx_hal_msp.c
     Core/Src/stm32f1xx_it.c
     Core/Src/system_stm32f1xx.c
-    startup_stm32f103xb.s
+    startup_stm32f103xb.S
+    ${CMAKE_BINARY_DIR}/linker.ld
 )
 
 # Add the include directories for the executable. Since we don't need the includes to propagate up as our
@@ -162,6 +201,11 @@ add_executable(${EXECUTABLE}
 target_include_directories(${EXECUTABLE}
 PRIVATE
     Core/Inc
+)
+
+# Add the compile definitions for the executable.
+target_compile_definitions(${EXECUTABLE} PRIVATE
+    $<$<BOOL:${RAM_ONLY_BUILD}>:RAM_ONLY_BUILD>
 )
 
 # Add additional warning options for the executable target, enabling them for our sources, but not third

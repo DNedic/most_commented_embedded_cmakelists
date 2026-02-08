@@ -61,6 +61,7 @@ defined in linker script */
   .type Reset_Handler, %function
 Reset_Handler:
 
+#ifndef RAM_ONLY_BUILD
 /* Copy the data segment initializers from flash to SRAM */
   ldr r0, =_sdata
   ldr r1, =_edata
@@ -77,7 +78,8 @@ LoopCopyDataInit:
   adds r4, r0, r3
   cmp r4, r1
   bcc CopyDataInit
-  
+#endif  
+
 /* Zero fill the bss segment. */
   ldr r2, =_sbss
   ldr r4, =_ebss

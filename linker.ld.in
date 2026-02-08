@@ -1,0 +1,77 @@
+ENTRY(Reset_Handler)
+
+MEMORY
+{
+    RAM (xrw)  : ORIGIN = RAM_ORIGIN, LENGTH = RAM_LENGTH
+    FLASH (rx) : ORIGIN = FLASH_ORIGIN, LENGTH = FLASH_LENGTH
+}
+
+SECTIONS
+{
+    .isr_vector : ALIGN(4)
+    {
+        KEEP(*(.isr_vector))
+#ifndef RAM_ONLY_BUILD
+    } > FLASH
+#else
+    } > RAM
+#endif
+
+    .text : ALIGN(4)
+    {
+        *(.text)
+        *(.text*)
+#ifndef RAM_ONLY_BUILD
+    } > FLASH
+#else
+    } > RAM
+#endif
+
+    .rodata : ALIGN(4)
+    {
+        *(.rodata)
+        *(.rodata*)
+#ifndef RAM_ONLY_BUILD
+    } > FLASH
+#else
+    } > RAM
+#endif
+
+    _sidata = LOADADDR(.data);
+
+    .data : ALIGN(4)
+    {
+        _sdata = .;
+        *(.data)
+        *(.data*)
+        _edata = ALIGN(4);
+#ifndef RAM_ONLY_BUILD
+    } > RAM AT > FLASH
+#else
+    } > RAM
+#endif
+
+    .bss : ALIGN(4)
+    {
+        _sbss = .;
+        __bss_start__ = _sbss;
+        *(.bss)
+        *(.bss*)
+        _ebss = ALIGN(4);
+        __bss_end__ = _ebss;
+    } > RAM
+
+    .heap (NOLOAD) : ALIGN(8)
+    {
+        PROVIDE ( end = . );
+        PROVIDE ( _end = . );
+        . = . + HEAP_SIZE;
+    } > RAM
+
+    .stack (NOLOAD) : ALIGN(8)
+    {
+        . = . + MINIMUM_STACK_SIZE;
+    } > RAM
+
+    _estack = ORIGIN(RAM) + LENGTH(RAM);
+}
