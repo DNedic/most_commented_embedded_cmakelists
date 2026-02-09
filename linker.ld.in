@@ -21,6 +21,43 @@ SECTIONS
     {
         *(.text)
         *(.text*)
+        KEEP (*(.init))
+        KEEP (*(.fini))
+#ifndef RAM_ONLY_BUILD
+    } > FLASH
+#else
+    } > RAM
+#endif
+
+    .preinit_array : ALIGN(4)
+    {
+        PROVIDE_HIDDEN(__preinit_array_start = .);
+        KEEP(*(.preinit_array*))
+        PROVIDE_HIDDEN(__preinit_array_end = .);
+#ifndef RAM_ONLY_BUILD
+    } > FLASH
+#else
+    } > RAM
+#endif
+
+    .init_array : ALIGN(4)
+    {
+        PROVIDE_HIDDEN(__init_array_start = .);
+        KEEP(*(SORT(.init_array.*)))
+        KEEP(*(.init_array))
+        PROVIDE_HIDDEN(__init_array_end = .);
+#ifndef RAM_ONLY_BUILD
+    } > FLASH
+#else
+    } > RAM
+#endif
+
+    .fini_array : ALIGN(4)
+    {
+        PROVIDE_HIDDEN(__fini_array_start = .);
+        KEEP(*(SORT(.fini_array.*)))
+        KEEP(*(.fini_array))
+        PROVIDE_HIDDEN(__fini_array_end = .);
 #ifndef RAM_ONLY_BUILD
     } > FLASH
 #else
